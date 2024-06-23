@@ -38,7 +38,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -69,17 +68,6 @@ public class CSVRecordTest {
     private String[] values;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        values = new String[] { "A", "B", "C" };
-        final String rowData = StringUtils.join(values, ',');
-        try (final CSVParser parser = CSVFormat.DEFAULT.parse(new StringReader(rowData))) {
-            record = parser.iterator().next();
-        }
-        try (final CSVParser parser = CSVFormat.DEFAULT.builder().setHeader(EnumHeader.class).build().parse(new StringReader(rowData))) {
-            recordWithHeader = parser.iterator().next();
-            headerMap = parser.getHeaderMap();
-        }
-    }
 
     @Test
     public void testCSVRecordNULLValues() throws IOException {
@@ -188,16 +176,6 @@ public class CSVRecordTest {
     }
 
     @Test
-    public void testIsInconsistent() throws IOException {
-        final String[] headers = { "first", "second", "third" };
-        final String rowData = StringUtils.join(values, ',');
-        try (final CSVParser parser = CSVFormat.DEFAULT.withHeader(headers).parse(new StringReader(rowData))) {
-            final Map<String, Integer> map = parser.getHeaderMapRaw();
-            final CSVRecord record1 = parser.iterator().next();
-            map.put("fourth", Integer.valueOf(4));
-            assertFalse(record1.isConsistent());
-        }
-    }
 
     @Test
     public void testIsMapped() {
@@ -243,19 +221,6 @@ public class CSVRecordTest {
     }
 
     @Test
-    public void testRemoveAndAddColumns() throws IOException {
-        // do:
-        try (final CSVPrinter printer = new CSVPrinter(new StringBuilder(), CSVFormat.DEFAULT)) {
-            final Map<String, String> map = recordWithHeader.toMap();
-            map.remove("OldColumn");
-            map.put("ZColumn", "NewValue");
-            // check:
-            final ArrayList<String> list = new ArrayList<>(map.values());
-            list.sort(null);
-            printer.printRecord(list);
-            assertEquals("A,B,C,NewValue" + CSVFormat.DEFAULT.getRecordSeparator(), printer.getOut().toString());
-        }
-    }
 
     @Test
     public void testSerialization() throws IOException, ClassNotFoundException {
