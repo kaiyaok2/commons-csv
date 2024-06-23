@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.function.IOStream;
 
 /**
  * Prints values in a {@link CSVFormat CSV format}.

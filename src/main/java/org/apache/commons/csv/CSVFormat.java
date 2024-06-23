@@ -40,10 +40,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.function.Uncheck;
-import org.apache.commons.io.output.AppendableOutputStream;
 
 /**
  * Specifies the format of a CSV file for parsing and writing.

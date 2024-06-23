@@ -52,9 +52,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.io.input.BrokenInputStream;
-import org.apache.commons.lang3.stream.Streams.FailableStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -1197,8 +1194,7 @@ public class CSVParserTest {
     }
 
     @Test
-    // TODO this may lead to strange behavior, throw an exception if iterator() has already been called?
-    public void testMultipleIterators() throws Exception {
+// TODO this may lead to strange behavior, throw an exception if iterator() has already been called?    public void testMultipleIterators() throws Exception {
         try (final CSVParser parser = CSVParser.parse("a,b,c" + CRLF + "d,e,f", CSVFormat.DEFAULT)) {
             final Iterator<CSVRecord> itr1 = parser.iterator();
 
