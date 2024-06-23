@@ -40,10 +40,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.function.Uncheck;
-import org.apache.commons.io.output.AppendableOutputStream;
 
 /**
  * Specifies the format of a CSV file for parsing and writing.
@@ -2050,9 +2046,6 @@ public final class CSVFormat implements Serializable {
      * @return a printer to an output.
      * @throws IOException thrown if the optional header cannot be printed.
      */
-    public CSVPrinter print(final Appendable out) throws IOException {
-        return new CSVPrinter(out, this);
-    }
 
     /**
      * Prints to the specified {@code File} with given {@code Charset}.

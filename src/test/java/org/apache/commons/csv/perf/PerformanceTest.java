@@ -31,8 +31,6 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -86,28 +84,8 @@ public class PerformanceTest {
         return recordCount;
     }
 
-    private void println(final String s) {
-        System.out.println(s);
-    }
 
-    private long readAll(final BufferedReader in) throws IOException {
-        long count = 0;
-        while (in.readLine() != null) {
-            count++;
-        }
-        return count;
-    }
 
-    public long testParseBigFile(final boolean traverseColumns) throws Exception {
-        final long startMillis = System.currentTimeMillis();
-        try (final BufferedReader reader = this.createBufferedReader()) {
-            final long count = this.parse(reader, traverseColumns);
-            final long totalMillis = System.currentTimeMillis() - startMillis;
-            this.println(
-                String.format("File parsed in %,d milliseconds with Commons CSV: %,d lines.", totalMillis, count));
-            return totalMillis;
-        }
-    }
 
     @Test
     public void testParseBigFileRepeat() throws Exception {
