@@ -60,6 +60,11 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.h2.tools.SimpleResultSet;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -98,6 +103,37 @@ public class CSVPrinterTest {
         return Files.createTempFile(getClass().getName(), ".csv");
     }
 
+    private void doOneRandom(final CSVFormat format) throws Exception {
+        final Random r = new Random();
+
+        final int nLines = r.nextInt(4) + 1;
+        final int nCol = r.nextInt(3) + 1;
+        // nLines=1;nCol=2;
+        final String[][] lines = generateLines(nLines, nCol);
+
+        final StringWriter sw = new StringWriter();
+        try (final CSVPrinter printer = new CSVPrinter(sw, format)) {
+
+            for (int i = 0; i < nLines; i++) {
+                // for (int j=0; j<lines[i].length; j++) System.out.println("### VALUE=:" + printable(lines[i][j]));
+                printer.printRecord((Object[]) lines[i]);
+            }
+
+            printer.flush();
+        }
+        final String result = sw.toString();
+        // System.out.println("### :" + printable(result));
+
+        try (final CSVParser parser = CSVParser.parse(result, format)) {
+            final List<CSVRecord> parseResult = parser.getRecords();
+
+            final String[][] expected = lines.clone();
+            for (int i = 0; i < expected.length; i++) {
+                expected[i] = expectNulls(expected[i], format);
+            }
+            Utils.compare("Printer output :" + printable(result), expected, parseResult);
+        }
+    }
 
     private void doRandom(final CSVFormat format, final int iter) throws Exception {
         for (int i = 0; i < iter; i++) {
@@ -200,6 +236,17 @@ public class CSVPrinterTest {
         return new String(buf);
     }
 
+    private void setUpTable(final Connection connection) throws SQLException {
+        try (final Statement statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255), TEXT CLOB, BIN_DATA BLOB)");
+            statement.execute("insert into TEST values(1, 'r1', 'long text 1', 'binary data 1')");
+            longText2 = StringUtils.repeat('a', IOUtils.DEFAULT_BUFFER_SIZE - 4);
+            longText2 += "\"\r\n\"b\"";
+            longText2 += StringUtils.repeat('c', IOUtils.DEFAULT_BUFFER_SIZE - 1);
+            statement.execute("insert into TEST values(2, 'r2', '" + longText2 + "', 'binary data 2')");
+            longText2 = longText2.replace("\"", "\"\"");
+        }
+    }
 
     @Test
     public void testCloseBackwardCompatibility() throws IOException {

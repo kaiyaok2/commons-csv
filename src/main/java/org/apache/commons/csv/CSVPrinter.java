@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.function.IOStream;
 
 /**
  * Prints values in a {@link CSVFormat CSV format}.
@@ -130,6 +131,14 @@ public final class CSVPrinter implements Flushable, Closeable {
      *             If an I/O error occurs
      * @since 1.6
      */
+    public void close(final boolean flush) throws IOException {
+        if (flush || format.getAutoFlush()) {
+            flush();
+        }
+        if (appendable instanceof Closeable) {
+            ((Closeable) appendable).close();
+        }
+    }
 
     /**
      * Flushes the underlying stream.
@@ -296,6 +305,15 @@ public final class CSVPrinter implements Flushable, Closeable {
         println();
     }
 
+    private void printRecordObject(final Object value) throws IOException {
+        if (value instanceof Object[]) {
+            this.printRecord((Object[]) value);
+        } else if (value instanceof Iterable) {
+            this.printRecord((Iterable<?>) value);
+        } else {
+            this.printRecord(value);
+        }
+    }
 
     /**
      * Prints all the objects in the given {@link Iterable} handling nested collections/arrays as records.
@@ -336,6 +354,10 @@ public final class CSVPrinter implements Flushable, Closeable {
      * @throws IOException
      *             If an I/O error occurs
      */
+    @SuppressWarnings("resource")
+    public void printRecords(final Iterable<?> values) throws IOException {
+        IOStream.of(values).forEachOrdered(this::printRecordObject);
+    }
 
     /**
      * Prints all the objects in the given array handling nested collections/arrays as records.
@@ -390,6 +412,26 @@ public final class CSVPrinter implements Flushable, Closeable {
      * @throws SQLException
      *             Thrown when a database access error occurs.
      */
+    public void printRecords(final ResultSet resultSet) throws SQLException, IOException {
+        final int columnCount = resultSet.getMetaData().getColumnCount();
+        while (resultSet.next()) {
+            for (int i = 1; i <= columnCount; i++) {
+                final Object object = resultSet.getObject(i);
+                if (object instanceof Clob) {
+                    try (Reader reader = ((Clob) object).getCharacterStream()) {
+                        print(reader);
+                    }
+                } else if (object instanceof Blob) {
+                    try (InputStream inputStream = ((Blob) object).getBinaryStream()) {
+                        print(inputStream);
+                    }
+                } else {
+                    print(object);
+                }
+            }
+            println();
+        }
+    }
 
     /**
      * Prints all the objects with metadata in the given JDBC result set based on the header boolean.
@@ -448,4 +490,8 @@ public final class CSVPrinter implements Flushable, Closeable {
      *             If an I/O error occurs
      * @since 1.10.0
      */
+    @SuppressWarnings({ "resource" }) // Caller closes.
+    public void printRecords(final Stream<?> values) throws IOException {
+        IOStream.adapt(values).forEachOrdered(this::printRecordObject);
+    }
 }

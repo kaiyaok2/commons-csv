@@ -52,6 +52,9 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.io.input.BrokenInputStream;
+import org.apache.commons.lang3.stream.Streams.FailableStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -110,6 +113,10 @@ public class CSVParserTest {
             .setHeader("A", "B")
             .build();
 
+    @SuppressWarnings("resource") // caller releases
+    private BOMInputStream createBOMInputStream(final String resource) throws IOException {
+        return new BOMInputStream(ClassLoader.getSystemClassLoader().getResource(resource).openStream());
+    }
 
     CSVRecord parse(final CSVParser parser, final int failParseRecordNo) throws IOException {
         if (parser.getRecordNumber() + 1 == failParseRecordNo) {
