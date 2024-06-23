@@ -40,10 +40,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.function.Uncheck;
-import org.apache.commons.io.output.AppendableOutputStream;
 
 /**
  * Specifies the format of a CSV file for parsing and writing.
@@ -1642,19 +1638,7 @@ public final class CSVFormat implements Serializable {
      * @param values the values to format
      * @return the formatted values
      */
-    public String format(final Object... values) {
-        return Uncheck.get(() -> format_(values));
-    }
 
-    private String format_(final Object... values) throws IOException {
-        final StringWriter out = new StringWriter();
-        try (CSVPrinter csvPrinter = new CSVPrinter(out, this)) {
-            csvPrinter.printRecord(values);
-            final String res = out.toString();
-            final int len = recordSeparator != null ? res.length() - recordSeparator.length() : res.length();
-            return res.substring(0, len);
-        }
-    }
 
     /**
      * Gets whether duplicate names are allowed in the headers.
@@ -2050,9 +2034,6 @@ public final class CSVFormat implements Serializable {
      * @return a printer to an output.
      * @throws IOException thrown if the optional header cannot be printed.
      */
-    public CSVPrinter print(final Appendable out) throws IOException {
-        return new CSVPrinter(out, this);
-    }
 
     /**
      * Prints to the specified {@code File} with given {@code Charset}.
@@ -2067,31 +2048,7 @@ public final class CSVFormat implements Serializable {
      * @throws IOException thrown if the optional header cannot be printed.
      * @since 1.5
      */
-    @SuppressWarnings("resource")
-    public CSVPrinter print(final File out, final Charset charset) throws IOException {
-        // The writer will be closed when close() is called.
-        return new CSVPrinter(new OutputStreamWriter(new FileOutputStream(out), charset), this);
-    }
 
-    private void print(final InputStream inputStream, final Appendable out, final boolean newRecord) throws IOException {
-        // InputStream is never null here
-        // There is nothing to escape when quoting is used which is the default.
-        if (!newRecord) {
-            append(getDelimiterString(), out);
-        }
-        final boolean quoteCharacterSet = isQuoteCharacterSet();
-        if (quoteCharacterSet) {
-            append(getQuoteCharacter().charValue(), out);
-        }
-        // Stream the input to the output without reading or holding the whole value in memory.
-        // AppendableOutputStream cannot "close" an Appendable.
-        try (OutputStream outputStream = new Base64OutputStream(new AppendableOutputStream<>(out))) {
-            IOUtils.copy(inputStream, outputStream);
-        }
-        if (quoteCharacterSet) {
-            append(getQuoteCharacter().charValue(), out);
-        }
-    }
 
     /**
      * Prints the {@code value} as the next value on the line to {@code out}. The value will be escaped or encapsulated as needed. Useful when one wants to
@@ -2163,26 +2120,7 @@ public final class CSVFormat implements Serializable {
      * @throws IOException thrown if the optional header cannot be printed.
      * @since 1.5
      */
-    @SuppressWarnings("resource")
-    public CSVPrinter print(final Path out, final Charset charset) throws IOException {
-        return print(Files.newBufferedWriter(out, charset));
-    }
 
-    private void print(final Reader reader, final Appendable out, final boolean newRecord) throws IOException {
-        // Reader is never null here
-        if (!newRecord) {
-            append(getDelimiterString(), out);
-        }
-        if (isQuoteCharacterSet()) {
-            printWithQuotes(reader, out);
-        } else if (isEscapeCharacterSet()) {
-            printWithEscapes(reader, out);
-        } else if (out instanceof Writer) {
-            IOUtils.copyLarge(reader, (Writer) out);
-        } else {
-            IOUtils.copy(reader, out);
-        }
-    }
 
     /**
      * Prints to the {@link System#out}.
@@ -2195,9 +2133,6 @@ public final class CSVFormat implements Serializable {
      * @throws IOException thrown if the optional header cannot be printed.
      * @since 1.5
      */
-    public CSVPrinter printer() throws IOException {
-        return new CSVPrinter(System.out, this);
-    }
 
     /**
      * Outputs the trailing delimiter (if set) followed by the record separator (if set).
