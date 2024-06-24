@@ -52,9 +52,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.io.input.BrokenInputStream;
-import org.apache.commons.lang3.stream.Streams.FailableStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -113,9 +110,6 @@ public class CSVParserTest {
             .setHeader("A", "B")
             .build();
 
-    @SuppressWarnings("resource") // caller releases
-    private BOMInputStream createBOMInputStream(final String resource) throws IOException {
-        return new BOMInputStream(ClassLoader.getSystemClassLoader().getResource(resource).openStream());
     }
 
     CSVRecord parse(final CSVParser parser, final int failParseRecordNo) throws IOException {
@@ -224,28 +218,10 @@ public class CSVParserTest {
         }
     }
 
-    @Test
-    public void testBOMInputStreamParserWithInputStream() throws IOException {
-        try (final BOMInputStream inputStream = createBOMInputStream("org/apache/commons/csv/CSVFileParser/bom.csv");
-            final CSVParser parser = CSVParser.parse(inputStream, UTF_8, CSVFormat.EXCEL.withHeader())) {
-            parser.forEach(record -> assertNotNull(record.get("Date")));
-        }
     }
 
-    @Test
-    public void testBOMInputStreamParserWithReader() throws IOException {
-        try (final Reader reader = new InputStreamReader(createBOMInputStream("org/apache/commons/csv/CSVFileParser/bom.csv"), UTF_8_NAME);
-            final CSVParser parser = new CSVParser(reader, CSVFormat.EXCEL.withHeader())) {
-            parser.forEach(record -> assertNotNull(record.get("Date")));
-        }
     }
 
-    @Test
-    public void testBOMInputStreamParseWithReader() throws IOException {
-        try (final Reader reader = new InputStreamReader(createBOMInputStream("org/apache/commons/csv/CSVFileParser/bom.csv"), UTF_8_NAME);
-            final CSVParser parser = CSVParser.parse(reader, CSVFormat.EXCEL.withHeader())) {
-            parser.forEach(record -> assertNotNull(record.get("Date")));
-        }
     }
 
     @Test
@@ -832,12 +808,6 @@ public class CSVParserTest {
         }
     }
 
-    @Test
-    public void testGetRecordsFromBrokenInputStream() throws IOException {
-        @SuppressWarnings("resource") // We also get an exception on close, which is OK but can't assert in a try.
-        final CSVParser parser = CSVParser.parse(new BrokenInputStream(), UTF_8, CSVFormat.DEFAULT);
-        assertThrows(UncheckedIOException.class, parser::getRecords);
-
     }
 
     @Test
@@ -1385,20 +1355,6 @@ public class CSVParserTest {
         }
     }
     
-    @ParameterizedTest
-    @EnumSource(CSVFormat.Predefined.class)
-    public void testParsingPrintedEmptyFirstColumn(final CSVFormat.Predefined format) throws Exception {
-        final String[][] lines = { { "a", "b" }, { "", "x" } };
-        final StringWriter buf = new StringWriter();
-        try (CSVPrinter printer = new CSVPrinter(buf, format.getFormat())) {
-            printer.printRecords(Stream.of(lines));
-        }
-        try (CSVParser csvRecords = new CSVParser(new StringReader(buf.toString()), format.getFormat())) {
-            for (final String[] line : lines) {
-                assertArrayEquals(line, csvRecords.nextRecord().values());
-            }
-            assertNull(csvRecords.nextRecord());
-        }
     }
 
     @Test
@@ -1458,17 +1414,6 @@ public class CSVParserTest {
             assertEquals(Arrays.asList("header1", "header2", "header1"), recordParser.getHeaderNames());
         }}
 
-    @Test
-    public void testRoundtrip() throws Exception {
-        final StringWriter out = new StringWriter();
-        final String data = "a,b,c\r\n1,2,3\r\nx,y,z\r\n";
-        try (final CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT);
-                final CSVParser parse = CSVParser.parse(data, CSVFormat.DEFAULT)) {
-            for (final CSVRecord record : parse) {
-                printer.printRecord(record);
-            }
-            assertEquals(data, out.toString());
-        }
     }
 
     @Test

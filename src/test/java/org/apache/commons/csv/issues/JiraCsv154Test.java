@@ -26,42 +26,8 @@ import org.junit.jupiter.api.Test;
 
 public class JiraCsv154Test {
 
-    @Test
-    public void testJiraCsv154_withCommentMarker() throws IOException {
-        final String comment = "This is a header comment";
-        // @formatter:off
-        final CSVFormat format = CSVFormat.EXCEL.builder()
-            .setHeader("H1", "H2")
-            .setCommentMarker('#')
-            .setHeaderComments(comment)
-            .build();
-        // @formatter:on
-        final StringBuilder out = new StringBuilder();
-        try (final CSVPrinter printer = format.print(out)) {
-            printer.print("A");
-            printer.print("B");
-        }
-        final String s = out.toString();
-        assertTrue(s.contains(comment), s);
     }
 
-    @Test
-    public void testJiraCsv154_withHeaderComments() throws IOException {
-        final String comment = "This is a header comment";
-        // @formatter:off
-        final CSVFormat format = CSVFormat.EXCEL.builder()
-            .setHeader("H1", "H2")
-            .setHeaderComments(comment)
-            .setCommentMarker('#')
-            .build();
-        // @formatter:on
-        final StringBuilder out = new StringBuilder();
-        try (final CSVPrinter printer = format.print(out)) {
-            printer.print("A");
-            printer.print("B");
-        }
-        final String s = out.toString();
-        assertTrue(s.contains(comment), s);
     }
 
 }

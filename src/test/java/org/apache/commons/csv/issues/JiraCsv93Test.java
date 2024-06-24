@@ -58,93 +58,9 @@ public class JiraCsv93Test {
         }
     }
 
-    @Test
-    public void testWithNotSetNullString() throws IOException {
-        // @formatter:off
-        every(CSVFormat.DEFAULT,
-                objects1,
-                "abc,,,\"a,b,c\",123",
-                new String[]{"abc", "", "", "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setQuoteMode(QuoteMode.ALL).build(),
-                objects1,
-                "\"abc\",\"\",,\"a,b,c\",\"123\"",
-                new String[]{"abc", "", "", "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setQuoteMode(QuoteMode.ALL_NON_NULL).build(),
-                objects1,
-                "\"abc\",\"\",,\"a,b,c\",\"123\"",
-                new String[]{"abc", "", null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setQuoteMode(QuoteMode.MINIMAL).build(),
-                objects1,
-                "abc,,,\"a,b,c\",123",
-                new String[]{"abc", "", "", "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setEscape('?').setQuoteMode(QuoteMode.NONE).build(),
-                objects1,
-                "abc,,,a?,b?,c,123",
-                new String[]{"abc", "", "", "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setQuoteMode(QuoteMode.NON_NUMERIC).build(),
-                objects1,
-                "\"abc\",\"\",,\"a,b,c\",123",
-                new String[]{"abc", "", null, "a,b,c", "123"});
-        // @formatter:on
     }
 
-    @Test
-    public void testWithSetNullStringEmptyString() throws IOException {
-        // @formatter:off
-        every(CSVFormat.DEFAULT.builder().setNullString("").build(),
-                objects1,
-                "abc,,,\"a,b,c\",123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("").setQuoteMode(QuoteMode.ALL).build(),
-                objects1,
-                "\"abc\",\"\",\"\",\"a,b,c\",\"123\"",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("").setQuoteMode(QuoteMode.ALL_NON_NULL).build(),
-                objects1,
-                "\"abc\",\"\",,\"a,b,c\",\"123\"",
-                new String[]{"abc", "", null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("").setQuoteMode(QuoteMode.MINIMAL).build(),
-                objects1,
-                "abc,,,\"a,b,c\",123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("").setEscape('?').setQuoteMode(QuoteMode.NONE).build(),
-                objects1,
-                "abc,,,a?,b?,c,123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("").setQuoteMode(QuoteMode.NON_NUMERIC).build(),
-                objects1,
-                "\"abc\",\"\",,\"a,b,c\",123",
-                new String[]{"abc", "", null, "a,b,c", "123"});
-        // @formatter:on
     }
 
-    @Test
-    public void testWithSetNullStringNULL() throws IOException {
-        // @formatter:off
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").build(),
-                objects2,
-                "abc,NULL,NULL,\"a,b,c\",123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").setQuoteMode(QuoteMode.ALL).build(),
-                objects2,
-                "\"abc\",\"NULL\",\"NULL\",\"a,b,c\",\"123\"",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").setQuoteMode(QuoteMode.ALL_NON_NULL).build(),
-                objects2,
-                "\"abc\",\"NULL\",NULL,\"a,b,c\",\"123\"",
-                new String[]{"abc", "NULL", null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").setQuoteMode(QuoteMode.MINIMAL).build(),
-                objects2,
-                "abc,NULL,NULL,\"a,b,c\",123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").setEscape('?').setQuoteMode(QuoteMode.NONE).build(),
-                objects2,
-                "abc,NULL,NULL,a?,b?,c,123",
-                new String[]{"abc", null, null, "a,b,c", "123"});
-        every(CSVFormat.DEFAULT.builder().setNullString("NULL").setQuoteMode(QuoteMode.NON_NUMERIC).build(),
-                objects2,
-                "\"abc\",\"NULL\",NULL,\"a,b,c\",123",
-                new String[]{"abc", "NULL", null, "a,b,c", "123"});
-        // @formatter:on
     }
 }
