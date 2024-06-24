@@ -29,8 +29,26 @@ import org.junit.jupiter.api.Test;
 
 public class JiraCsv271Test {
 
+    @Test
+    public void testJiraCsv271_withArray() throws IOException {
+        final CSVFormat csvFormat = CSVFormat.DEFAULT;
+        final StringWriter stringWriter = new StringWriter();
+        try (CSVPrinter printer = new CSVPrinter(stringWriter, csvFormat)) {
+            printer.print("a");
+            printer.printRecord("b","c");
+        }
+        assertEquals("a,b,c\r\n", stringWriter.toString());
     }
 
+    @Test
+    public void testJiraCsv271_withList() throws IOException {
+        final CSVFormat csvFormat = CSVFormat.DEFAULT;
+        final StringWriter stringWriter = new StringWriter();
+        try (CSVPrinter printer = new CSVPrinter(stringWriter, csvFormat)) {
+            printer.print("a");
+            printer.printRecord(Arrays.asList("b","c"));
+        }
+        assertEquals("a,b,c\r\n", stringWriter.toString());
     }
 
 }
