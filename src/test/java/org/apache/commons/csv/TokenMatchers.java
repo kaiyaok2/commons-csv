@@ -18,12 +18,19 @@ package org.apache.commons.csv;
 
 import static org.hamcrest.core.AllOf.allOf;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 /**
  * Collection of matchers for asserting the type and content of tokens.
  */
 final class TokenMatchers {
 
+    public static Matcher<Token> hasContent(final String expectedContent) {
+        return new TypeSafeDiagnosingMatcher<Token>() {
+
+            @Override
             public void describeTo(final Description description) {
                 description.appendText("token has content ");
                 description.appendValue(expectedContent);
@@ -39,6 +46,10 @@ final class TokenMatchers {
         };
     }
 
+    public static Matcher<Token> hasType(final Token.Type expectedType) {
+        return new TypeSafeDiagnosingMatcher<Token>() {
+
+            @Override
             public void describeTo(final Description description) {
                 description.appendText("token has type ");
                 description.appendValue(expectedType);
@@ -54,6 +65,10 @@ final class TokenMatchers {
         };
     }
 
+    public static Matcher<Token> isReady() {
+        return new TypeSafeDiagnosingMatcher<Token>() {
+
+            @Override
             public void describeTo(final Description description) {
                 description.appendText("token is ready ");
             }
@@ -67,5 +82,8 @@ final class TokenMatchers {
         };
     }
 
+    public static Matcher<Token> matches(final Token.Type expectedType, final String expectedContent) {
+        return allOf(hasType(expectedType), hasContent(expectedContent));
+    }
 
 }
