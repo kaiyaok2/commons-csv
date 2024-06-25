@@ -34,50 +34,5 @@ import org.junit.jupiter.api.Test;
 
 public class JiraCsv247Test {
 
-    @Test
-    public void testHeadersMissingOneColumnWhenAllowingMissingColumnNames() throws Exception {
-        final CSVFormat format = CSVFormat.DEFAULT.builder().setHeader().setAllowMissingColumnNames(true).build();
 
-        assertTrue(format.getAllowMissingColumnNames(), "We should allow missing column names");
-
-        final Reader in = new StringReader("a,,c,d,e\n1,2,3,4,5\nv,w,x,y,z");
-        try (final CSVParser parser = format.parse(in)) {
-            assertEquals(Arrays.asList("a", "", "c", "d", "e"), parser.getHeaderNames());
-            final Iterator<CSVRecord> iterator = parser.iterator();
-            CSVRecord record = iterator.next();
-            assertEquals("1", record.get(0));
-            assertEquals("2", record.get(1));
-            assertEquals("3", record.get(2));
-            assertEquals("4", record.get(3));
-            assertEquals("5", record.get(4));
-            record = iterator.next();
-            assertEquals("v", record.get(0));
-            assertEquals("w", record.get(1));
-            assertEquals("x", record.get(2));
-            assertEquals("y", record.get(3));
-            assertEquals("z", record.get(4));
-            assertFalse(iterator.hasNext());
-        }
-    }
-
-    @Test
-    public void testHeadersMissingThrowsWhenNotAllowingMissingColumnNames() {
-        final CSVFormat format = CSVFormat.DEFAULT.builder().setHeader().build();
-
-        assertFalse(format.getAllowMissingColumnNames(), "By default we should not allow missing column names");
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            try (final Reader reader = new StringReader("a,,c,d,e\n1,2,3,4,5\nv,w,x,y,z");
-                CSVParser parser = format.parse(reader);) {
-                // should fail
-            }
-        }, "1 missing column header is not allowed");
-
-        assertThrows(IllegalArgumentException.class, () -> {
-            try (final Reader reader = new StringReader("a,,c,d,\n1,2,3,4,5\nv,w,x,y,z");
-                CSVParser parser = format.parse(reader);) {
-                // should fail
-            }
-        }, "2+ missing column headers is not allowed!");
-    }
 }

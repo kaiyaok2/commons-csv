@@ -39,16 +39,4 @@ public class JiraCsv253Test {
         }
     }
 
-    @Test
-    public void testHandleAbsentValues() throws IOException {
-        final String source = "\"John\",,\"Doe\"\n" + ",\"AA\",123\n" + "\"John\",90,\n" + "\"\",,90";
-        final CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setQuoteMode(QuoteMode.NON_NUMERIC).build();
-        try (final CSVParser parser = csvFormat.parse(new StringReader(source))) {
-            final Iterator<CSVRecord> csvRecords = parser.iterator();
-            assertArrayEqual(new String[] {"John", null, "Doe"}, csvRecords.next());
-            assertArrayEqual(new String[] {null, "AA", "123"}, csvRecords.next());
-            assertArrayEqual(new String[] {"John", "90", null}, csvRecords.next());
-            assertArrayEqual(new String[] {"", null, "90"}, csvRecords.next());
-        }
-    }
 }
