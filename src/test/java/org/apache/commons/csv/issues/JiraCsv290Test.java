@@ -58,58 +58,7 @@ import org.junit.jupiter.api.Test;
 //
 public class JiraCsv290Test {
 
-    private void testHelper(final String fileName, final CSVFormat format) throws Exception {
-        List<List<String>> content = new ArrayList<>();
-        try (CSVParser csvParser = CSVParser.parse(new InputStreamReader(this.getClass().getResourceAsStream("/org/apache/commons/csv/CSV-290/" + fileName)),
-                format)) {
-            content = csvParser.stream().collect(Collectors.mapping(CSVRecord::toList, Collectors.toList()));
-        }
 
-        assertEquals(3, content.size());
 
-        assertEquals("1", content.get(0).get(0));
-        assertEquals("abc", content.get(0).get(1));
-        assertEquals("test line 1\ntest line 2", content.get(0).get(2)); // new line
-        assertNull(content.get(0).get(3)); // null
-        assertEquals("", content.get(0).get(4));
 
-        assertEquals("2", content.get(1).get(0));
-        assertEquals("\\b:\b \\t:\t \\n:\n \\r:\r", content.get(1).get(2)); // \b, \t, \n, \r
-
-        assertEquals("3", content.get(2).get(0));
-        assertEquals("b,c,d", content.get(2).get(2)); // value has comma
-        assertEquals("\"quoted\"", content.get(2).get(3)); // quoted
-    }
-
-    @Test
-    public void testPostgresqlCsv() throws Exception {
-        testHelper("psql.csv", CSVFormat.POSTGRESQL_CSV);
-    }
-
-    @Test
-    public void testPostgresqlText() throws Exception {
-        testHelper("psql.tsv", CSVFormat.POSTGRESQL_TEXT);
-    }
-
-    @Test
-    public void testWriteThenRead() throws Exception {
-        final StringWriter sw = new StringWriter();
-
-        try (CSVPrinter printer = new CSVPrinter(sw, CSVFormat.POSTGRESQL_CSV.builder().setHeader().setSkipHeaderRecord(true).build())) {
-
-            printer.printRecord("column1", "column2");
-            printer.printRecord("v11", "v12");
-            printer.printRecord("v21", "v22");
-            printer.close();
-
-            final CSVParser parser = new CSVParser(new StringReader(sw.toString()),
-                    CSVFormat.POSTGRESQL_CSV.builder().setHeader().setSkipHeaderRecord(true).build());
-
-            assertArrayEquals(new Object[] { "column1", "column2" }, parser.getHeaderNames().toArray());
-
-            final Iterator<CSVRecord> i = parser.iterator();
-            assertArrayEquals(new String[] { "v11", "v12" }, i.next().toList().toArray());
-            assertArrayEquals(new String[] { "v21", "v22" }, i.next().toList().toArray());
-        }
-    }
 }

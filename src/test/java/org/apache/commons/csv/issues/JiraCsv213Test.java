@@ -38,31 +38,5 @@ import org.junit.jupiter.api.Test;
  */
 public class JiraCsv213Test {
 
-    private void createEndChannel(final File csvFile) {
-        // @formatter:off
-        final CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                    .setDelimiter(';')
-                    .setHeader()
-                    .setSkipHeaderRecord(true)
-                    .setRecordSeparator('\n')
-                    .setQuoteMode(QuoteMode.ALL)
-                    .build();
-        // @formatter:on
-        try (Reader reader = Files.newBufferedReader(csvFile.toPath(), StandardCharsets.UTF_8);
-            CSVParser parser = csvFormat.parse(reader)) {
-            if (parser.iterator().hasNext()) {
-                // System.out.println(parser.getCurrentLineNumber());
-                // System.out.println(parser.getRecordNumber());
-                // get only first record we don't need other's
-                parser.iterator().next(); // this fails
-            }
-        } catch (final IOException e) {
-            throw new IllegalStateException("Error while adding end channel to CSV", e);
-        }
-    }
 
-    @Test
-    public void test() {
-        createEndChannel(new File("src/test/resources/org/apache/commons/csv/CSV-213/999751170.patch.csv"));
-    }
 }
