@@ -45,4 +45,33 @@ public class JiraCsv248Test {
      * @throws IOException Signals that an I/O exception has occurred.
      * @throws ClassNotFoundException If the CSVRecord cannot be deserialized
      */
+    @Test
+    public void testJiraCsv248() throws IOException, ClassNotFoundException {
+        // Record was originally created using CSV version 1.6 with the following code:
+        // try (final CSVParser parser = CSVParser.parse("A,B\n#my comment\nOne,Two",
+        // CSVFormat.DEFAULT.builder().setHeader().setCommentMarker('#'))) {
+        // CSVRecord rec = parser.iterator().next();
+        // }
+        try (InputStream in = getTestInput(); final ObjectInputStream ois = new ObjectInputStream(in)) {
+            final Object object = ois.readObject();
+            assertTrue(object instanceof CSVRecord);
+            final CSVRecord rec = (CSVRecord) object;
+            assertEquals(1L, rec.getRecordNumber());
+            assertEquals("One", rec.get(0));
+            assertEquals("Two", rec.get(1));
+            assertEquals(2, rec.size());
+            // The comment and whitespace are ignored so this is not 17 but 4
+            assertEquals(4, rec.getCharacterPosition());
+            assertEquals("my comment", rec.getComment());
+            // The parser is not serialized
+            assertNull(rec.getParser());
+            // Check all header map functionality is absent
+            assertTrue(rec.isConsistent());
+            assertFalse(rec.isMapped("A"));
+            assertFalse(rec.isSet("A"));
+            assertEquals(0, rec.toMap().size());
+            // This will throw
+            assertThrows(IllegalStateException.class, () -> rec.get("A"));
+        }
+    }
 }

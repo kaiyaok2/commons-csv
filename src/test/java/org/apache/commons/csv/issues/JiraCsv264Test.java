@@ -46,6 +46,45 @@ public class JiraCsv264Test {
                                                  "\"1\",\"2\",\"\",\"\",\"5\"\n" +
                                                  "\"6\",\"7\",\"\",\"\",\"10\"";
 
+    @Test
+    public void testJiraCsv264() {
+        final CSVFormat csvFormat = CSVFormat.DEFAULT
+            .builder()
+            .setHeader()
+            .setDuplicateHeaderMode(DuplicateHeaderMode.DISALLOW)
+            .setAllowMissingColumnNames(true)
+            .build();
 
+        try (StringReader reader = new StringReader(CSV_STRING)) {
+            assertThrows(IllegalArgumentException.class, () -> csvFormat.parse(reader));
+        }
+    }
 
+    @Test
+    public void testJiraCsv264WithGapAllowEmpty() throws IOException {
+        final CSVFormat csvFormat = CSVFormat.DEFAULT
+            .builder()
+            .setHeader()
+            .setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_EMPTY)
+            .setAllowMissingColumnNames(true)
+            .build();
+
+        try (StringReader reader = new StringReader(CSV_STRING_GAP); final CSVParser parser = csvFormat.parse(reader)) {
+            // empty
+        }
+    }
+
+    @Test
+    public void testJiraCsv264WithGapDisallow() {
+        final CSVFormat csvFormat = CSVFormat.DEFAULT
+            .builder()
+            .setHeader()
+            .setDuplicateHeaderMode(DuplicateHeaderMode.DISALLOW)
+            .setAllowMissingColumnNames(true)
+            .build();
+
+        try (StringReader reader = new StringReader(CSV_STRING_GAP)) {
+            assertThrows(IllegalArgumentException.class, () -> csvFormat.parse(reader));
+        }
+    }
 }
